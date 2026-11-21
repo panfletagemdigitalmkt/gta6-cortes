@@ -4,13 +4,27 @@ from pathlib import Path
 _modelo = None
 
 
+def _audio_16k(video: Path):
+    """Extrai o áudio com o FFmpeg (mono, 16 kHz) — evita depender do PyAV."""
+    import subprocess
+
+    import numpy as np
+
+    bruto = subprocess.run(
+        ["ffmpeg", "-nostdin", "-loglevel", "error", "-i", str(video),
+         "-vn", "-ac", "1", "-ar", "16000", "-f", "s16le", "-"],
+        capture_output=True, check=True,
+    ).stdout
+    return np.frombuffer(bruto, np.int16).astype(np.float32) / 32768.0
+
+
 def transcrever(video: Path, modelo: str = "small", idioma: str = "pt") -> list[dict]:
     global _modelo
     from faster_whisper import WhisperModel
 
     if _modelo is None:
         _modelo = WhisperModel(modelo, device="cpu", compute_type="int8")
-    segmentos, _ = _modelo.transcribe(str(video), language=idioma, word_timestamps=True, vad_filter=True)
+    segmentos, _ = _modelo.transcribe(_audio_16k(video), language=idioma, word_timestamps=True, vad_filter=True)
     palavras = []
     for s in segmentos:
         for p in s.words or []:
