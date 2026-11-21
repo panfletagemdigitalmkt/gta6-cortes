@@ -10,6 +10,10 @@ on:
         type: choice
         options: ["rodar", "listar"]
         default: "rodar"
+      quantidade:
+        description: "Quantos cortes gerar nesta rodada (vazio = valor do config.yaml)"
+        type: string
+        default: ""
       postar:
         description: "Postar de verdade? (false = só gera os vídeos)"
         type: choice
@@ -56,6 +60,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # agendado: usa a variável POSTAR do repositório; manual: usa o botão
           POSTAR: ${{ github.event_name == 'workflow_dispatch' && inputs.postar || vars.POSTAR }}
+          QUANTIDADE: ${{ inputs.quantidade }}
         run: |
           if [ "${{ inputs.modo }}" = "listar" ]; then
             python -m gta6_cortes.main --listar

@@ -71,7 +71,17 @@ def main() -> int:
     if args.listar:
         # só lista (não baixa nem posta): mostra todos os streamers, para você escolher quem pedir autorização
         cfg = {**cfg, "somente_autorizados": False}
-    candidatos = filtrar_clipes(tw.clipes(game_id, cfg["busca"]["janela_horas"]), cfg, est.ids(estado))
+    janela = cfg["busca"]["janela_horas"]
+    brutos = tw.clipes(game_id, janela)
+    canais = tw.ids_dos_canais(cfg.get("streamers_autorizados") or [])
+    for login, bid in canais.items():
+        do_canal = tw.clipes_do_canal(bid, game_id, janela)
+        print(f"📺 {login}: {len(do_canal)} clipes de GTA 6 nas últimas {janela}h")
+        brutos += do_canal
+    faltando = {s.lower() for s in cfg.get("streamers_autorizados") or []} - set(canais)
+    if faltando:
+        print(f"⚠ Canais não encontrados na Twitch (confira o login): {', '.join(sorted(faltando))}")
+    candidatos = filtrar_clipes(brutos, cfg, est.ids(estado))
     print(f"🎬 {len(candidatos)} clipes aprovados nos filtros")
     if cfg.get("somente_autorizados", True) and not cfg.get("streamers_autorizados"):
         print("⚠ Nenhum streamer em streamers_autorizados (config.yaml). Adicione quem liberou cortes.")
@@ -85,14 +95,15 @@ def main() -> int:
         return 0
 
     postar_de_verdade = os.environ.get("POSTAR", "").lower() == "true"
+    limite = int(os.environ.get("QUANTIDADE") or cfg.get("cortes_por_execucao", 3))
     erros = 0
-    for clipe in candidatos[: cfg.get("cortes_por_execucao", 3)]:
+    for clipe in candidatos[:limite]:
         try:
             processar(clipe, cfg, postar_de_verdade, estado)
         except Exception as e:
             erros += 1
             print(f"  ✗ falhou: {e}", file=sys.stderr)
-    return 1 if erros and erros == min(len(candidatos), cfg.get("cortes_por_execucao", 3)) else 0
+    return 1 if erros and erros == min(len(candidatos), limite) else 0
 
 
 if __name__ == "__main__":

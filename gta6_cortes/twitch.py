@@ -47,11 +47,23 @@ class Twitch:
             params["language"] = idiomas
         return self._get("streams", **params)["data"]
 
-    def clipes(self, game_id: str, janela_horas: int, paginas: int = 3) -> list[dict]:
+    def ids_dos_canais(self, logins: list[str]) -> dict[str, str]:
+        if not logins:
+            return {}
+        dados = self._get("users", login=[l.lower() for l in logins][:100])["data"]
+        return {u["login"]: u["id"] for u in dados}
+
+    def clipes_do_canal(self, broadcaster_id: str, game_id: str, janela_horas: int, paginas: int = 5) -> list[dict]:
+        """Clipes de um canal específico, só do jogo pedido."""
+        return [c for c in self.clipes(None, janela_horas, paginas, broadcaster_id=broadcaster_id)
+                if c.get("game_id") == game_id]
+
+    def clipes(self, game_id: str | None, janela_horas: int, paginas: int = 3, broadcaster_id: str | None = None) -> list[dict]:
         inicio = (datetime.now(timezone.utc) - timedelta(hours=janela_horas)).strftime("%Y-%m-%dT%H:%M:%SZ")
         todos, cursor = [], None
         for _ in range(paginas):
-            params = {"game_id": game_id, "started_at": inicio, "first": 100}
+            params = {"started_at": inicio, "first": 100}
+            params.update({"broadcaster_id": broadcaster_id} if broadcaster_id else {"game_id": game_id})
             if cursor:
                 params["after"] = cursor
             resp = self._get("clips", **params)
@@ -81,11 +93,15 @@ def filtrar_clipes(clipes: list[dict], cfg: dict, ja_postados: set[str]) -> list
         if not (b.get("duracao_min_seg", 0) <= c["duration"] <= b.get("duracao_max_seg", 60)):
             continue
         bons.append(c)
-    # melhores primeiro; no máximo 1 clipe por streamer em cada rodada
-    bons.sort(key=lambda c: c["view_count"], reverse=True)
-    vistos, unicos = set(), []
-    for c in bons:
-        if c["broadcaster_name"].lower() not in vistos:
-            vistos.add(c["broadcaster_name"].lower())
-            unicos.append(c)
-    return unicos
+    # sem duplicados; melhores primeiro, alternando entre streamers (A, B, C, A, B, C...)
+    unicos = {c["id"]: c for c in bons}.values()
+    por_streamer: dict[str, list[dict]] = {}
+    for c in sorted(unicos, key=lambda c: c["view_count"], reverse=True):
+        por_streamer.setdefault(c["broadcaster_name"].lower(), []).append(c)
+    filas = sorted(por_streamer.values(), key=lambda f: f[0]["view_count"], reverse=True)
+    ordem = []
+    while any(filas):
+        for f in filas:
+            if f:
+                ordem.append(f.pop(0))
+    return ordem
