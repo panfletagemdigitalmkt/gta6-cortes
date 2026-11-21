@@ -5,6 +5,11 @@ on:
     - cron: "17 */3 * * *"   # a cada 3 horas (horário UTC)
   workflow_dispatch:          # botão "Run workflow" para rodar na mão
     inputs:
+      modo:
+        description: "listar = só mostra os clipes encontrados · rodar = gera os vídeos"
+        type: choice
+        options: ["rodar", "listar"]
+        default: "rodar"
       postar:
         description: "Postar de verdade? (false = só gera os vídeos)"
         type: choice
@@ -51,7 +56,12 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # agendado: usa a variável POSTAR do repositório; manual: usa o botão
           POSTAR: ${{ github.event_name == 'workflow_dispatch' && inputs.postar || vars.POSTAR }}
-        run: python -m gta6_cortes.main
+        run: |
+          if [ "${{ inputs.modo }}" = "listar" ]; then
+            python -m gta6_cortes.main --listar
+          else
+            python -m gta6_cortes.main
+          fi
 
       - name: Guardar vídeos gerados (7 dias)
         if: always()

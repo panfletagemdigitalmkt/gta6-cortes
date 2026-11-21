@@ -68,14 +68,20 @@ def main() -> int:
           f"({', '.join(s['user_login'] for s in ao_vivo[:10])}{'...' if len(ao_vivo) > 10 else ''})")
 
     estado = est.carregar()
+    if args.listar:
+        # só lista (não baixa nem posta): mostra todos os streamers, para você escolher quem pedir autorização
+        cfg = {**cfg, "somente_autorizados": False}
     candidatos = filtrar_clipes(tw.clipes(game_id, cfg["busca"]["janela_horas"]), cfg, est.ids(estado))
     print(f"🎬 {len(candidatos)} clipes aprovados nos filtros")
     if cfg.get("somente_autorizados", True) and not cfg.get("streamers_autorizados"):
         print("⚠ Nenhum streamer em streamers_autorizados (config.yaml). Adicione quem liberou cortes.")
 
     if args.listar:
+        autorizados = {s.lower() for s in cfg.get("streamers_autorizados") or []}
         for c in candidatos[:30]:
-            print(f"  {c['view_count']:>6} views | {c['broadcaster_name']:<20} | {c['duration']:>4.0f}s | {c['title']}")
+            marca = "✅" if c["broadcaster_name"].lower() in autorizados else "  "
+            print(f"  {marca} {c['view_count']:>6} views | {c['broadcaster_name']:<20} | {c['duration']:>4.0f}s | "
+                  f"{c['title']} | {c['url']}")
         return 0
 
     postar_de_verdade = os.environ.get("POSTAR", "").lower() == "true"
