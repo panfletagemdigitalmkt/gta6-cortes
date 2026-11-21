@@ -1,0 +1,516 @@
+---
+name: upload-post
+description: "Upload content to social media platforms via Upload-Post API. Use when posting videos, photos, text, or documents to TikTok, Instagram, YouTube, LinkedIn, Facebook, X (Twitter), Threads, Pinterest, Reddit, Bluesky, Telegram, or Google Business. Supports scheduling, a queue that can fill itself with the best times to post, paid partnership labels, editing/reposting/deleting live posts, analytics, FFmpeg processing, upload history, comments and replies, Instagram, Bluesky and WhatsApp DMs (WhatsApp Business messaging with templates), account-wide Instagram AutoDM rules, webhooks with a delivery log, LinkedIn mentions, Telegram chat and bot management, Bluesky reads and drafts, Google Business posts, reviews, performance and location info, and YouTube channel management (playlists, captions, comment inbox and moderation, channel settings, search, live broadcasts and live chat), Telegram incoming messages, payments and Business, and team roles with post approvals."
+---
+
+# Upload-Post API
+
+Post content to multiple social media platforms with a single API call.
+
+## Documentation
+
+- Full API docs: https://docs.upload-post.com
+- LLM-friendly: https://docs.upload-post.com/llms.txt (index) and https://docs.upload-post.com/llms-full.txt (everything)
+- OpenAPI spec: https://docs.upload-post.com/openapi.json
+- Error codes: https://docs.upload-post.com/api/error-codes
+
+## Setup
+
+1. Create account at [upload-post.com](https://upload-post.com)
+2. Connect your social media accounts
+3. Create a **Profile** (e.g., "mybrand") - this links your connected accounts
+4. Generate an **API Key** from dashboard
+5. Use the profile name as `user` parameter in API calls
+
+## Authentication
+
+```
+Authorization: Apikey YOUR_API_KEY
+```
+
+Base URL: `https://api.upload-post.com/api`
+
+The `user` parameter in all endpoints refers to your **profile name** (not username), which determines which connected social accounts receive the content.
+
+## Endpoints Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/upload` | POST | Upload videos |
+| `/upload_photos` | POST | Upload photos/carousels |
+| `/upload_text` | POST | Text-only posts |
+| `/upload_document` | POST | Upload documents (LinkedIn) or any file (Telegram) |
+| `/uploadposts/status?request_id=X` | GET | Check async upload status |
+| `/uploadposts/history` | GET | Upload history |
+| `/uploadposts/schedule` | GET | List scheduled posts |
+| `/uploadposts/schedule/<job_id>` | DELETE | Cancel scheduled post |
+| `/uploadposts/schedule/<job_id>` | PATCH | Edit scheduled post |
+| `/uploadposts/me` | GET | Validate API key; plan and `analyze_shorts` (`limit`, `used`, `remaining`, `resets_at`) |
+| `/uploadposts/users` | GET / POST / DELETE | List, create (`{"username": ...}`; `409` "Username already in use") or delete profiles |
+| `/uploadposts/analyze-shorts` | POST | AI title and captions for a short video (counts against `analyze_shorts`) |
+| `/analytics/<profile>` | GET | Get analytics |
+| `/uploadposts/facebook/pages` | GET | List Facebook pages |
+| `/uploadposts/linkedin/pages` | GET | List LinkedIn pages |
+| `/uploadposts/linkedin/resolve-organization` | GET | Resolve any LinkedIn company Page to `{urn, name}` for mentions |
+| `/uploadposts/pinterest/boards` | GET | List Pinterest boards |
+| `/uploadposts/post-analytics/<request_id>` | GET | Per-post metrics of an upload |
+| `/uploadposts/comments` | GET | List comments of a post, or the replies under one comment |
+| `/uploadposts/dms/send` | POST | Send an Instagram, Bluesky or WhatsApp DM (or a sender action) |
+| `/uploadposts/dms/conversations` | GET | List Instagram, Bluesky or WhatsApp DM conversations |
+| `/uploadposts/dms/templates` | GET / POST / DELETE | WhatsApp message templates (list, create, delete) |
+| `/uploadposts/dms/media` | GET / POST | WhatsApp media: download a received file (`media_id`) / upload one to send |
+| `/uploadposts/autodms/rules` | GET / POST | List / create account-wide Instagram AutoDM rules |
+| `/uploadposts/autodms/rules/pause` · `resume` · `delete` | POST | Manage a rule (`{"rule_id": ...}`) |
+| `/uploadposts/users/notifications` | GET / POST | Webhook URL and events |
+| `/uploadposts/webhooks/deliveries` | GET | Webhook delivery log (7 days) |
+| `/uploadposts/webhooks/deliveries/<delivery_id>` | GET | One delivery, with its payload |
+| `/uploadposts/webhooks/deliveries/<delivery_id>/redeliver` | POST | Send a delivery again |
+| `/uploadposts/webhooks/subscriptions` | GET / POST | Extra webhook destinations with their own events (not generally available yet) |
+| `/uploadposts/teams/roles` · `/teams/members` · `/teams/audit` | GET | Team roles, members and activity log |
+| `/uploadposts/approvals` | GET | Posts waiting for approval (not generally available yet) |
+| `/uploadposts/reddit/detailed-posts` | GET | Get Reddit posts with media |
+| `/uploadposts/ffmpeg/jobs/upload` | POST | Start an FFmpeg job |
+| `/uploadposts/ffmpeg/jobs/<job_id>` | GET | FFmpeg job status |
+| `/uploadposts/ffmpeg/jobs/<job_id>/download` | GET | Download FFmpeg output |
+| `/uploadposts/best-times?profile_username=&platform=` | GET | Best hours to post for a connected account |
+| `/uploadposts/queue/settings` | GET / POST | Queue settings (`slots: "auto"` = best times) |
+| `/uploadposts/queue/preview` · `/queue/next-slot` | GET | Upcoming slots / next free slot |
+| `/uploadposts/posts/edit` | POST | Edit a live post (Facebook, LinkedIn, X, YouTube, Google Business, Telegram) |
+| `/uploadposts/posts/repost` | POST | Repost (LinkedIn, X, Threads) or forward/copy (Telegram) |
+| `/uploadposts/posts/unpublish` | POST | Delete a live post |
+| `/uploadposts/telegram/*` | GET / POST / PATCH / DELETE | Telegram chat, members, invite links, topics, bot profile and commands |
+| `/uploadposts/bluesky/*` | GET / POST | Bluesky profiles, search, notifications, profile/settings, drafts |
+| `/uploadposts/google-business/*` | GET / PATCH | Google Business posts, reviews, gallery, performance, location info |
+| `/uploadposts/youtube/*` | GET / POST / PATCH / PUT / DELETE | YouTube videos, quota, playlists, captions, comments, channel, search, live |
+
+## Upload Videos
+
+```bash
+curl -X POST "https://api.upload-post.com/api/upload" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -F "user=profile_name" \
+  -F "platform[]=instagram" \
+  -F "platform[]=tiktok" \
+  -F "video=@video.mp4" \
+  -F "title=My caption"
+```
+
+Key parameters:
+- `user`: Profile username (required)
+- `platform[]`: Target platforms (required)
+- `video`: Video file or URL (required)
+- `title`: Caption/title (required)
+- `description`: Extended description
+- `scheduled_date`: ISO-8601 date for scheduling
+- `timezone`: IANA timezone (e.g., "Europe/Madrid")
+- `async_upload`: Set `true` for background processing
+- `first_comment`: Auto-post first comment
+
+## Upload Photos
+
+```bash
+curl -X POST "https://api.upload-post.com/api/upload_photos" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -F "user=profile_name" \
+  -F "platform[]=instagram" \
+  -F "photos[]=@photo1.jpg" \
+  -F "photos[]=@photo2.jpg" \
+  -F "title=My caption"
+```
+
+Instagram & Threads support mixed carousels (photos + videos in same post).
+
+Bluesky takes 4 images per post (extra ones are dropped with a `warnings` entry). Send `bluesky_gallery=true` to publish up to **10** images as a gallery; with more than 10 the first 10 are published and `warnings` says so.
+
+## Upload Text
+
+```bash
+curl -X POST "https://api.upload-post.com/api/upload_text" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": "profile_name",
+    "platform": ["x", "threads", "bluesky"],
+    "title": "My text post"
+  }'
+```
+
+Supported: X, LinkedIn, Facebook, Threads, Reddit, Bluesky, Telegram, Google Business.
+
+### Paid partnership
+
+`paid_partnership=true` (on `/upload`, `/upload_photos`, `/upload_text`) marks a sponsored post with each network's native label: TikTok `brand_content_toggle`, YouTube `hasPaidProductPlacement`, X `paid_partnership`. Facebook also needs `facebook_sponsor_id` (sponsor's Page id; not on Reels/Stories) and Pinterest `pinterest_sponsor_id` (closed beta). Other networks publish without it and `warnings` says so; a network-specific field always wins. TikTok: with `privacy_level=SELF_ONLY` the request is refused (`400 commercial_disclosure_privacy_conflict`), and drafts do not carry it. Guide: https://docs.upload-post.com/guides/paid-partnership
+
+### LinkedIn mentions
+
+Write mentions in the LinkedIn post text (`linkedin_title`/`title` for text posts, `linkedin_description`/`description` for photos and videos):
+
+- `@[Exact Page Name](urn:li:organization:ID)`: a company, showcase or school Page. The name must match the Page's name on LinkedIn **exactly, capitals included**, or LinkedIn publishes it as plain text.
+- `@[Name](urn:li:person:ID)`: a person. Only person ids Upload-Post itself sees work (a member who connected their LinkedIn, or the `author` of a comment from `/uploadposts/comments`); LinkedIn does not let apps look people up.
+- `@company-vanity`: Upload-Post looks the Page up and fills in its exact name.
+
+Write plain text (no backslashes): reserved characters are escaped for you. To get the URN and exact name of any Page from its URL:
+
+```bash
+curl -G "https://api.upload-post.com/api/uploadposts/linkedin/resolve-organization" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  --data-urlencode "user=profile_name" \
+  --data-urlencode "url=https://www.linkedin.com/company/linkedin/"
+# {"success": true, "urn": "urn:li:organization:1337", "id": "1337", "name": "LinkedIn",
+#  "vanity_name": "linkedin", "mention": "@[LinkedIn](urn:li:organization:1337)", "cached": false}
+```
+
+`url` also takes the vanity (`linkedin` or `@linkedin`), the numeric id or `urn:li:organization:ID`. Paste `mention` into the post as is. Cached Pages are free; live lookups count against 60 per hour per account. Errors: `400 linkedin_person_not_resolvable` (a `/in/` profile), `403 linkedin_permission_missing` (reconnect LinkedIn approving the Page permissions), `404 organization_not_found`, `429 rate_limited`.
+
+## Upload Document (LinkedIn, Telegram)
+
+Upload PDFs, PPTs, DOCs as native LinkedIn document posts (carousel viewer). Telegram accepts **any file up to 50 MB** here; `telegram_send_as` = `document` (default), `audio`, `voice`, `animation`, `sticker`, `video_note`, `video` or `photo`.
+
+```bash
+curl -X POST "https://api.upload-post.com/api/upload_document" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -F "user=profile_name" \
+  -F 'platform[]=linkedin' \
+  -F "document=@presentation.pdf" \
+  -F "title=Document Title" \
+  -F "description=Post text above document"
+```
+
+Parameters:
+- `document`: PDF, PPT, PPTX, DOC, DOCX (max 100MB, 300 pages)
+- `title`: Document title (required)
+- `description`: Post commentary
+- `visibility`: PUBLIC, CONNECTIONS, LOGGED_IN, CONTAINER
+- `target_linkedin_page_id`: Post to company page
+
+## Supported Platforms
+
+| Platform | Videos | Photos | Text | Documents |
+|----------|--------|--------|------|-----------|
+| TikTok | ✓ | ✓ | - | - |
+| Instagram | ✓ | ✓ | - | - |
+| YouTube | ✓ | - | - | - |
+| LinkedIn | ✓ | ✓ | ✓ | ✓ |
+| Facebook | ✓ | ✓ | ✓ | - |
+| X (Twitter) | ✓ | ✓ | ✓ | - |
+| Threads | ✓ | ✓ | ✓ | - |
+| Pinterest | ✓ | ✓ | - | - |
+| Reddit | - | ✓ | ✓ | - |
+| Bluesky | ✓ | ✓ | ✓ | - |
+| Telegram | ✓ | ✓ | ✓ | ✓ |
+| Google Business | ✓ | ✓ | ✓ | - |
+
+**Messaging only (not an `/upload` destination):** WhatsApp, through the DM endpoints (`platform=whatsapp`); see [Direct Messages](#direct-messages-instagram-bluesky-whatsapp). Facebook Messenger (`platform=facebook`) is in limited rollout, enabled on request (otherwise `403 messenger_not_enabled`).
+
+## Upload History
+
+```bash
+curl "https://api.upload-post.com/api/uploadposts/history?page=1&limit=20" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+Parameters:
+- `page`: Page number (default: 1)
+- `limit`: 10, 20, 50, or 100 (default: 10)
+
+Returns: upload timestamp, platform, success status, post URLs, errors.
+
+## Scheduling
+
+Add `scheduled_date` parameter (ISO-8601):
+
+```json
+{
+  "scheduled_date": "2026-02-01T10:00:00Z",
+  "timezone": "Europe/Madrid"
+}
+```
+
+Response includes `job_id`. Manage with:
+- `GET /uploadposts/schedule` - List all scheduled
+- `DELETE /uploadposts/schedule/<job_id>` - Cancel
+- `PATCH /uploadposts/schedule/<job_id>` - Edit (date, title, caption)
+
+## Best Time to Post and the Automatic Queue
+
+```bash
+curl "https://api.upload-post.com/api/uploadposts/best-times?profile_username=profile_name&platform=instagram&timezone=Europe/Madrid" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+- Platforms: TikTok, Instagram, Facebook, YouTube, LinkedIn, Threads, Pinterest, Bluesky. Optional `top` (1-24, default 5), `refresh=true` (only if the cached answer is 24 h old; YouTube 7 days), `page_urn` (LinkedIn Page), `facebook_page_id`.
+- Answer: `best_times` (best first, in `timezone`), `by_hour`, `by_day`, `source` (`audience_activity`, `account_posts`, `upload_post_history`, `none`), `confidence`, `warnings`.
+- Let the queue use them: `POST /api/uploadposts/queue/settings` with `{"profile_username": "profile_name", "timezone": "Europe/Madrid", "slots": "auto", "auto_slots_count": 3, "auto_platforms": ["instagram", "tiktok"]}`. Then upload with `add_to_queue=true`. Posts already scheduled do not move; a `slots` array switches back to fixed slots. `GET /queue/settings` shows `slots_mode`, `auto_slots`, `effective_slots`, and `configured: false` when the profile never saved a queue (the values are then defaults); `GET /queue/preview?count=` and `GET /queue/next-slot` show what is coming.
+
+## Edit, Repost and Delete Live Posts
+
+```bash
+curl -X POST "https://api.upload-post.com/api/uploadposts/posts/edit" \
+  -H "Authorization: Apikey YOUR_KEY" -H "Content-Type: application/json" \
+  -d '{"platform": "telegram", "user": "profile_name", "post_id": "812", "text": "Fixed text"}'
+```
+
+- Edit: Facebook `message`, LinkedIn `commentary`, X `text` (Premium, edit window), YouTube `title`/`description`/`tags`/`privacyStatus`/`hasPaidProductPlacement`, Google Business `summary`/`cta_type`/`cta_url`/`event_*`/`offer_*` (`post_id` = `accounts/…/locations/…/localPosts/…`), Telegram `text`/`caption`, `telegram_reply_markup`, `action` = `pin`/`unpin`/`stop_poll`/`edit_live_location`/`stop_live_location`, `telegram_media` (replace the media; send `caption` or `telegram_remove_caption`).
+- Repost: LinkedIn (`commentary`), X, Threads; Telegram forwards or copies with `mode` (`forward`/`copy`), `target_chat_id` or `target_user` (another profile), `post_ids` (1-100) or `all_messages`, and for a copy `caption`.
+- Unpublish (`platform`, `user`, `post_id`): not Instagram, TikTok or Threads. Telegram: `delete_all_messages=true` deletes every message of the post (album, caption rest, first comment); bots can delete for 48 h.
+
+## Check Upload Status
+
+For async uploads or scheduled posts:
+
+```bash
+curl "https://api.upload-post.com/api/uploadposts/status?request_id=XXX" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+Or use `job_id` for scheduled posts.
+
+## Analytics
+
+```bash
+curl "https://api.upload-post.com/api/analytics/profile_name?platforms=instagram,tiktok" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+Supported: Instagram, TikTok, LinkedIn, Facebook, X, YouTube, Threads, Pinterest, Reddit, Bluesky, Telegram, Google Business.
+
+Telegram returns `followers` (subscribers or members), reactions as `engagement`/`likes` and `boosts_active` (the Bot API has no views). Google Business daily metrics for any range: `GET /api/uploadposts/google-business/performance?user=&location_id=&metrics=&start_date=&end_date=`, search keywords: `/google-business/performance/keywords?start_month=&end_month=`.
+
+Returns: followers, impressions, reach, profile views, time-series data.
+
+Per-post metrics of an upload: `GET /api/uploadposts/post-analytics/<request_id>?platform=tiktok`. A TikTok draft (`post_mode=MEDIA_UPLOAD`) has metrics only after the creator publishes it as **public** from the TikTok app; until then `post_metrics_error` says it is still in the inbox. After 30 days without a post Upload-Post stops asking TikTok; read a published one with `GET /api/uploadposts/post-analytics?platform_post_id=<id>&platform=tiktok&user=<profile>`. TikTok rows carry `original_publish_id`, and `post_url` is empty when the account's @username is unknown.
+
+## Get Pages/Boards
+
+```bash
+# Facebook Pages
+curl "https://api.upload-post.com/api/uploadposts/facebook/pages" \
+  -H "Authorization: Apikey YOUR_KEY"
+
+# LinkedIn Pages  
+curl "https://api.upload-post.com/api/uploadposts/linkedin/pages" \
+  -H "Authorization: Apikey YOUR_KEY"
+
+# Pinterest Boards
+curl "https://api.upload-post.com/api/uploadposts/pinterest/boards" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+## Reddit Detailed Posts
+
+Get posts with full media info (images, galleries, videos):
+
+```bash
+curl "https://api.upload-post.com/api/uploadposts/reddit/detailed-posts?profile_username=myprofile" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+Returns up to 2000 posts with media URLs, dimensions, thumbnails.
+
+## FFmpeg Editor
+
+Process media with custom FFmpeg commands:
+
+```bash
+curl -X POST "https://api.upload-post.com/api/uploadposts/ffmpeg/jobs/upload" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -F "file=@input.mp4" \
+  -F "full_command=ffmpeg -y -i {input} -c:v libx264 -crf 23 {output}" \
+  -F "output_extension=mp4"
+```
+
+- Use `{input}` and `{output}` placeholders
+- Poll `GET /api/uploadposts/ffmpeg/jobs/<job_id>` until `FINISHED` (or `ERROR`)
+- Download result from `GET /api/uploadposts/ffmpeg/jobs/<job_id>/download`
+- Supports multiple inputs: upload `file`, `file1`, `file2`... and reference them as `{input0}`, `{input1}`, etc.
+- Rules (400 otherwise): every `-i` must be `{input}`/`{inputN}` or a `-f lavfi` source; no URLs or protocols (`http://`, `concat:`, `file:`...) inside the command; endless inputs (`-stream_loop -1`, `-loop 1`, lavfi without duration) need `-t`/`-shortest`/`-frames`.
+
+Quotas: Free 30min/mo, Basic 300min, Pro 1000min, Advanced 3000min, Business 10000min.
+
+## Comments and Replies
+
+```bash
+# Top-level comments of a post
+curl "https://api.upload-post.com/api/uploadposts/comments?platform=instagram&user=profile_name&post_id=17890455123456789" \
+  -H "Authorization: Apikey YOUR_KEY"
+
+# Replies under one comment: same call plus comment_id
+curl "https://api.upload-post.com/api/uploadposts/comments?platform=instagram&user=profile_name&post_id=17890455123456789&comment_id=17858893269123456&limit=25" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+- `comment_id` (replies) works on Instagram, Facebook, LinkedIn (company Pages only), TikTok, Threads and YouTube. X and Bluesky answer `400 platform_not_supported`. `post_id` is always required.
+- Instagram: numeric comment id. Facebook: the `{post}_{comment}` id; `post_id` in `{page_id}_{post_id}` form picks the Page. LinkedIn: pass the `comment_urn` from the listing (`urn:li:comment:(urn:li:activity:…,…)`); a bare id is only searched among the post's first 250 comments.
+- Paginate with `after` = `pagination.next_cursor` (`cursor` is ignored here). `limit` 1-50; LinkedIn's top-level listing ignores it.
+- Errors: `400 invalid_comment_id`, `404 comment_not_found` (Instagram/Facebook), `404 linkedin_comment_not_found`, `403 linkedin_personal_not_supported` (personal profile), `403 linkedin_page_access_denied` (no longer Page admin: reconnect). A comment without replies is `200` with `comments: []`.
+- Reply with `POST /api/uploadposts/comments/create` (`platform`, `user`, `comment_id`, `message`, plus `post_id` where needed).
+
+## Direct Messages (Instagram, Bluesky, WhatsApp)
+
+```bash
+curl -X POST "https://api.upload-post.com/api/uploadposts/dms/send" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"platform": "bluesky", "user": "profile_name", "recipient_id": "alice.bsky.social", "message": "Thanks for the follow! https://example.com"}'
+
+curl "https://api.upload-post.com/api/uploadposts/dms/conversations?platform=bluesky&user=profile_name&messages_limit=1" \
+  -H "Authorization: Apikey YOUR_KEY"
+```
+
+- Instagram: `recipient_id` is the Instagram-scoped id (from conversations or the `dm_received` webhook); the person must have written in the last 24 hours. Optional `buttons` (3), `attachments`, `quick_replies`, `generic_template`, `reply_to`, `sender_action` (`typing_on`, `typing_off`, `mark_seen`, `react`, `unreact` with `message_id`).
+- Bluesky: needs an app password created with **"Allow access to your direct messages"** (Bluesky > Settings > Privacy and security > App passwords), else `403 bluesky_dm_scope_missing`: reconnect Bluesky with a new one. `recipient_id` is a handle, DID or profile link, or pass `conversation_id` (also for groups). Text up to 1,000 characters; links, `#hashtags` and up to 10 `@mentions` become clickable. Share a post with `attachments: {"type": "post", "url": "https://bsky.app/profile/<handle>/post/<id>"}` (no images or files). `reply_to`, and `sender_action`: `mark_seen`/`mark_read`, `react`/`unreact` (`message_id` + a single emoji in `reaction`), `delete` (for you), `accept`, `mute`, `unmute`, `leave`. Sender actions spend no DM quota.
+- Bluesky conversations: `participant_id` (handle/DID), `conversation_id` + `messages_cursor` (older messages), `status=request|accepted`, `read_state=unread`. At most 25 per page; slow pages mark the rest `messages_truncated: true`. Messages carry `direction` (`in`/`out`), `reactions`, `reply_to`.
+- Bluesky errors: `403 bluesky_recipient_unavailable` (`reason`; no quota spent), `404 bluesky_recipient_not_found` / `bluesky_conversation_not_found`, `400 bluesky_message_too_long`, `401 bluesky_reauth_required`, `429 bluesky_rate_limited`, `503 bluesky_edge_rate_limited` (`Retry-After`). **`504 bluesky_send_unconfirmed` (`retryable: false`): the DM may have gone out, read the conversation before sending again and never retry it automatically.**
+
+**WhatsApp** (`platform: "whatsapp"`): your own WhatsApp Business number, connected from the dashboard or the white-label connect page with Meta's Embedded Signup ("Continue with Facebook"; no API credential). Messaging only, never in `/upload`. Meta bills conversations to the customer's WhatsApp Business account.
+
+```bash
+curl -X POST "https://api.upload-post.com/api/uploadposts/dms/send" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"platform": "whatsapp", "user": "profile_name", "recipient_id": "34600111222", "message": "Your order has shipped"}'
+
+# Outside the 24-hour window: an approved template
+curl -X POST "https://api.upload-post.com/api/uploadposts/dms/send" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"platform": "whatsapp", "user": "profile_name", "recipient_id": "34600111222", "template": {"name": "order_update", "language": "en_US", "components": [{"type": "body", "parameters": [{"type": "text", "text": "Jane"}]}]}}'
+```
+
+- `recipient_id` is the phone number in international format (7-15 digits; `+` and spaces accepted). Free text (up to 4096 characters), `attachments` (up to 10 `{type, url}` or `{type, media_id}`: `image`, `video`, `audio`, `document`, `sticker`), `reply_to` (`wamid`), `location`, `contacts`, interactive `buttons` (3) / `list` / `cta_url` with `header`/`footer`, `reaction` (`{message_id, emoji}`, `""` removes it) and `sender_action` `mark_read`/`typing_on` (with `message_id`) work only within **24 hours** of the person's last message.
+- Outside the window only an approved `template` goes out (`400 whatsapp_template_required`, then `dm_window_blocked` for free text until they write again). Templates: `GET /dms/templates?platform=whatsapp&user=`, `POST` `{platform, user, name, category (UTILITY|MARKETING|AUTHENTICATION), language, body + examples | components}` (starts `PENDING`), `DELETE ?name=`.
+- Conversations (`GET /dms/conversations?platform=whatsapp&user=`): only messages since the number was connected, kept 90 days; each chat has `window_open_until`. Received media come as `media_id`: download with `GET /dms/media?platform=whatsapp&user=&media_id=`; upload a file to send with `POST /dms/media` (multipart `file`).
+- Errors: `400 whatsapp_not_connected`, `whatsapp_invalid_recipient`, `whatsapp_undeliverable`, `whatsapp_invalid_request`, `whatsapp_api_error`; `401 whatsapp_reauth_required` (reconnect); `429` daily DM limit (shared with Instagram), `dm_rate_limited`, `dm_send_in_progress`; `502 whatsapp_unreachable`. Docs: https://docs.upload-post.com/api/whatsapp-dms
+- **Messenger** (`platform: "facebook"`) uses the same endpoints but is in limited rollout (on request): accounts without access get `403 messenger_not_enabled`; no plan, setting or reconnect turns it on.
+
+## AutoDM: Account-Wide Instagram Rules
+
+One rule answers with a DM every comment on any post or reel of the Instagram account (present and future), plus story replies, story mentions and DMs with a keyword. Rules never expire, do not count towards the 2 per-post monitors per profile per day, and run from Meta webhooks only.
+
+```bash
+curl -X POST "https://api.upload-post.com/api/uploadposts/autodms/rules" \
+  -H "Authorization: Apikey YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "profile_username": "profile_name",
+    "triggers": ["comment", "story_reply", "story_mention"],
+    "trigger_keywords": ["guide"],
+    "reply_message": "Here is your free guide!",
+    "buttons": [{"title": "Get the guide", "url": "https://example.com/guide"}],
+    "per_user_cooldown_hours": 24
+  }'
+```
+
+- `triggers`: `comment` (default), `story_reply`, `story_mention`, `dm_keyword` (needs `trigger_keywords`). Keywords: up to 20, case- and accent-insensitive, not applied to `story_mention`; blank keywords are a `400`.
+- `reply_message`: max 1,000 characters (640 with `buttons`, up to 3). `per_user_cooldown_hours`: whole number 0-720 (default 24); message triggers never go below 24 h (`message_cooldown_hours`).
+- `GET /api/uploadposts/autodms/rules[?profile_username=]`: `status` (`active`, `paused`, `reconnect_required`, `stopped` + `stop_reason`, `disabled`), `stats`, `pending`, `webhook` (`receiving_events`, `last_event_at`, `last_event_age_hours`, `hint`).
+- `POST /api/uploadposts/autodms/rules/pause|resume|delete` with `{"rule_id": "rule_..."}`.
+- Limits: 10 rules per Instagram account; a post with its own monitor is answered by that monitor; 25 DMs per account every 15 minutes plus the plan's daily DM allowance; overflow is queued up to 24 h. Uncertain sends are never repeated (`stats.unknown_outcome`).
+- Errors: `502 webhook_subscription_failed` (reconnect Instagram), `409 duplicate_rule` / `rule_limit_reached` / `rule_creation_in_progress` / `rule_stopped`, `503 account_rules_disabled`.
+
+## Telegram (your own bot)
+
+Publishing options (all optional, Bot API names with a `telegram_` prefix, JSON options as the official object): `telegram_title`, `telegram_parse_mode`, `telegram_reply_markup` (URL buttons), `telegram_pin` / `telegram_pin_notify`, `telegram_reply_to_message_id`, `telegram_message_thread_id`, `telegram_disable_notification`, `telegram_protect_content`, `telegram_first_comment_as_reply` (default true). Text posts: one of `telegram_poll`, `telegram_location`, `telegram_venue`, `telegram_contact`, `telegram_dice`, or `telegram_rich_message`. Media: `telegram_send_as` (`animation`, `video_note`, `live_photo`, `document`), `telegram_media_urls` (album), `telegram_caption_overflow=split`, `telegram_paid_star_count` (paid media, Stars go to your channel/bot). An invalid option fails only the Telegram result (`telegram_invalid_parameter`). Reference: https://docs.upload-post.com/api/telegram
+
+Management (`user` = profile; the bot needs the matching admin right): `GET|PATCH /uploadposts/telegram/chat-info`, `GET /telegram/boosts`, `GET|POST /telegram/members` (`action`: `ban`, `unban`, `restrict`, `promote`, `demote`, `set_title`), `POST|PATCH|DELETE /telegram/invite-links`, `POST /telegram/join-requests`, `POST|PATCH|DELETE /telegram/topics`, `GET|PATCH /telegram/bot-profile`, `GET|POST|DELETE /telegram/bot-commands`, `GET /telegram/stars`. Destructive calls need `"confirm": true`. DMs: `POST /uploadposts/dms/send` with `platform=telegram` and the person's numeric `recipient_id` (only people who started the bot).
+
+- **Incoming messages (opt-in per bot)**: `POST /uploadposts/telegram/updates` with `{"user": "profile_name", "enabled": true}` makes the bot send its updates to Upload-Post (`GET /telegram/updates?user=` shows the state and webhook health). Another service's webhook is only replaced with `replace_existing_webhook: true` (`409 telegram_webhook_in_use` otherwise). Optional `forward_url` (raw updates, signed with your webhook secret), `business_chats`, `auto_answer_callbacks`, `extra_updates`. Then private messages arrive as `dm_received` and every update, raw (button presses, inline and join queries, payments...), as `telegram_update` (both opt-in: list them in `webhook_events`); read chats with `GET /uploadposts/dms/conversations?platform=telegram&user=`, download attachments with `GET /uploadposts/dms/media`, and answer buttons, inline, join, shipping or pre-checkout queries with `POST /telegram/answer` (`410 telegram_query_expired` when Telegram's time is up). `enabled: false` removes the webhook and the stored messages.
+- **Stars and payments**: `GET /telegram/stars`, `/stars/transactions`; `POST /telegram/invoices` and `/invoice-links`, `/stars/refund`, `/stars/subscription`; automatic pre-checkout rules `GET|PUT /telegram/payments/settings` (need incoming updates on), failures in `/payments/unanswered`; gifts `GET /telegram/gifts`, `/gifts/owned`, `/gifts/unique`. `POST /telegram/gifts` and `/gifts/premium` spend the bot's Stars: confirm with the user first.
+- **Telegram Business** (a Business account connected to the bot): `GET /telegram/business-connections`, `GET|PATCH /business-profile`, `POST|PATCH|DELETE /business-stories` (+ `/repost`), `GET|POST /business-gifts`, `GET /business-stars`, `POST /business-stars/transfer`.
+- **Paid broadcast**: `telegram_allow_paid_broadcast=true` lets a post go above 30 messages per second for 0.1 Stars per message from the bot's balance. Telegram only allows it for bots with at least 100,000 Stars and 100,000 monthly active users; otherwise the Telegram result fails with `telegram_paid_broadcast_not_allowed`: send it again without the option.
+
+## Bluesky Reads and Drafts
+
+- Publishing extras: `bluesky_tags` (up to 8 hidden hashtags), `bluesky_created_at` (import older posts), `bluesky_thread_overflow=true` (long text continues as replies), `bluesky_gif_as_video`, video `bluesky_captions` (WebVTT) and `bluesky_video_presentation=gif`.
+- Reads: `GET /uploadposts/bluesky/profile?actor=` (up to 25; empty = connected account), `/bluesky/search/posts?user=&q=` (needs `user`), `/bluesky/search/actors?q=`, `/bluesky/followers`, `/bluesky/follows`, `/uploadposts/post-engagement?platform=bluesky&post_id=&type=likes|reposts|quotes`, `/bluesky/notifications?user=&reasons=`, `/bluesky/notifications/unread-count`, read-only gateway `/bluesky/xrpc/<nsid>` (allow-listed public methods).
+- Account: `GET|POST /bluesky/profile/self`, `/bluesky/settings`, `/bluesky/preferences`, post actions `POST /uploadposts/posts/action` (`bookmark`, `pin`, reply/quote settings). Drafts: `GET|POST /bluesky/drafts`, `PATCH|DELETE /bluesky/drafts/<id>` (text only; delete needs `confirm`).
+
+## Google Business
+
+- Publishing extras: `gbp_alert_type`, `gbp_upload_to_gallery`, `gbp_multi_media=true` (up to 10 photos), recurring EVENT/OFFER posts (`gbp_recurrence` + `_days`/`_day_of_month`/`_week_occurrence`/`_end`), `gbp_scheduled_time` (Google's own scheduling).
+- Posts: `GET /uploadposts/google-business/posts?user=&location_id=`, `/posts/get?post_id=`; edit with `/posts/edit`, delete with `/posts/unpublish`.
+- Reviews: `GET /google-business/reviews` (`order_by`), `/reviews/get?review_name=`, `/reviews/batch?location_ids=`; reply `PUT /reviews/reply`.
+- Location: `GET /google-business/location-info`, `PATCH /location-info` with `edit_mode` `legacy` (default) or `strict` (title, address, categories, open status; `dry_run`, `confirm`), plus gallery (`/media`), attributes, Place Actions, menus/services, lodging. `location_id` is optional (default: the location selected for the profile).
+
+## YouTube Management (after publishing)
+
+Upload extras: `youtube_localizations` (translated title/description per language, JSON; needs `defaultLanguage`) and `youtube_brand_partner` (brand channel ID `UC…`). Everything below takes `user` (profile) and lives under `/api/uploadposts/youtube`.
+
+- **Videos**: `GET /youtube/videos?ids=` (or `chart=mostPopular`, `my_rating=like`), `parts`, `include_owner_details`. Thumbnail: `POST /youtube/thumbnail` (`video_id` + file or `thumbnail_url`). Edit metadata with `POST /uploadposts/posts/edit` (`platform: youtube`).
+- **Playlists**: `GET|POST /youtube/playlists`, `PATCH|DELETE /youtube/playlists/<id>`, items `GET|POST /playlists/<id>/items` (`video_id`, `position`, `note`), `PATCH|DELETE /playlists/<id>/items/<item_id>`, image `/playlists/<id>/image`.
+- **Captions**: `GET /youtube/captions?video_id=`, `POST /youtube/captions` (file or `file_url`, `language`, `name`, `is_draft`), `PUT|DELETE /captions/<id>`, `GET /captions/<id>/download?tfmt=srt|vtt…&tlang=`.
+- **Comments inbox**: `GET /youtube/comments?video_id=` or `scope=channel` (`moderation_status=heldForReview|likelySpam`, `order`, `search`), `GET /comments/replies?parent_id=`, `POST /youtube/comments` (`text` + `parent_id` to reply or `video_id`; optional `idempotency_key`), `PATCH|DELETE /comments/<id>`, `POST /comments/moderate` (`comment_ids` up to 50, `status` `published`/`heldForReview`/`rejected`, `ban_author`).
+- **Channel**: `GET|PATCH /youtube/channel` (`description`, `keywords`, `country`, `default_language`, `unsubscribed_trailer`, `localizations`; settings and translations in separate calls; the channel name cannot be changed), `GET /channel/lookup?for_handle=@…`, banner, sections, watermark.
+- **Search and catalogs**: `GET /youtube/search` (`q`, `for_mine`, `channel_id`, `type`, `order`…), `/youtube/categories`, `/languages`, `/regions`. Subscriptions, ratings, activities: `/youtube/subscriptions`, `/videos/<id>/rate`, `/youtube/activities`.
+- **Live**: `GET|POST /youtube/live/broadcasts` (`title`, `scheduled_start_time`, `privacy_status`, `create_stream`), `PATCH|DELETE /live/broadcasts/<id>`, `/bind`, `/transition` (`testing`, `live`, `complete`), `/cuepoint`; streams `/live/streams` (the stream key is a secret: never print it). Chat: `GET|POST /youtube/live/chat` (`broadcast_id` or `live_chat_id`; messages and polls only in your own broadcasts), `/live/chat/polls/<id>/close`, `/live/moderators`, `/live/bans`, `/live/super-chats`.
+
+**Daily allowance.** These calls share a daily budget per Upload-Post account in YouTube quota units, reset at midnight Pacific: **2,000 units on paid plans, 200 on free** (searches: 5 and 1 calls). Check it with `GET /api/uploadposts/youtube/quota` before a batch. Reads cost 1 unit (chat 5 per page); playlist and comment writes ~50; captions are the expensive part (list 50, upload 400, replace 450, download 200), so the free plan cannot upload or download captions (`403 youtube_plan_daily_limit_too_low`); moderators 50-200. Uploads have their own allowance and are never limited by this one.
+
+**Rules.** Lists return `items`, `next_page_token`, `page_info`. On updates `""` means no change; remove with `null` or `*_remove`. Destructive or hard-to-undo calls (delete playlist/item/caption/comment/section/broadcast/stream, reject comments, ban, remove a moderator, replace a watermark or image, go `live` or `complete`) need `confirm: true`, otherwise `400 confirmation_required` and nothing reaches YouTube: ask the user first. `502 youtube_write_outcome_unknown` means the write may have happened: read it back before retrying. Captions, moderators and bans need the full YouTube permission (`403 youtube_insufficient_scope`: reconnect the channel). Reference: https://docs.upload-post.com/api/youtube-videos
+
+## Webhooks
+
+Configure with `POST /api/uploadposts/users/notifications`:
+
+```json
+{"channels": {"webhook": true}, "webhook_url": "https://example.com/hook",
+ "webhook_events": {"upload_completed": true, "dm_received": true, "comment_received": true}}
+```
+
+Events: `upload_completed`, `social_account_connected`, `social_account_disconnected`, `social_account_reauth_required`, `dm_received` (Instagram, WhatsApp, Telegram; Bluesky checked every 5 minutes), `comment_received`, `telegram_update`, Google Business `review_received`, `review_updated`, `customer_media_received`, `listing_google_update`, `listing_duplicate`, `listing_control_changed`, `post_analytics_updated`, `youtube_video_published`, `youtube_video_updated`, and the approval events `post_approval_requested`, `post_approved`, `post_rejected`, `post_approval_expired`. Omitted or empty `webhook_events` = every event except the opt-in ones (`dm_received`, `comment_received`, `telegram_update`, the Google Business events, `post_analytics_updated`, YouTube and approval events), which only arrive if listed. Signed with HMAC-SHA256: `X-Upload-Post-Signature: sha256=HMAC(webhook_secret, "{timestamp}.{raw_body}")` with `X-Upload-Post-Timestamp`; the secret is `notifications.webhook_secret` from `GET /uploadposts/users/notifications`.
+
+- **At least once.** A timeout (15 s total), connection error, `5xx`, `408` or `429` is retried: 6 attempts over ~8.5 h (+1 min, +5 min, +30 min, +2 h, +6 h), same body and same `X-Upload-Post-Delivery` id (deduplicate by it); `X-Upload-Post-Attempt` is 1-6. Other `4xx` are final; `3xx` counts as delivered (redirects are not followed). No ordering guarantee.
+- After 5 consecutive failures the webhook pauses 30 min; events during the pause are queued, not lost. Pending after 24 h = `failed`.
+- `GET /api/uploadposts/webhooks/deliveries`: filters `event`, `status` (`pending`, `delivered`, `failed`, `cancelled`), `request_id`, `job_id`, `profile_username`; `limit` 1-100 (20), `page` 1-50, `include_payload=true`. Kept 7 days.
+- `GET /api/uploadposts/webhooks/deliveries/<delivery_id>`: one delivery with `attempts` and `payload`.
+- `POST /api/uploadposts/webhooks/deliveries/<delivery_id>/redeliver`: new delivery now, same body, current URL, header `X-Upload-Post-Redelivery-Of`. `404` unknown/expired, `409` (`webhook_removed`, `event_unsubscribed`, `blocked_url`).
+
+**Webhook subscriptions (not generally available yet: every route answers `503 webhook_subscriptions_disabled` until it is switched on).** Extra destinations besides the account webhook, each with its own `events` and optional `profile_username` (what the n8n trigger node uses):
+
+- `POST /api/uploadposts/webhooks/subscriptions` `{"url": "https://...", "events": ["upload_completed"], "profile_username": "profile_name", "source": "my-app", "name": "..."}`: `201 created: true`; the same `url` + `events` + `profile_username` is idempotent (`200 created: false`, `reactivated: true` if it was disabled). Public `https` URL only (`400 invalid_url`), unknown events `400 invalid_events` (+ `allowed_events`), at most 10 active per account (`409 subscription_limit_reached`), team members cannot create them (`403 team_member_forbidden`).
+- `GET .../subscriptions?status=active|disabled&source=&url=`, `GET|DELETE .../subscriptions/<subscription_id>` (`404 not_found`), `POST .../subscriptions/<subscription_id>/test` (optional `{"event": ...}`, one of its events; `409 subscription_disabled`). A subscription is disabled on its own after repeated failures (`disabled_reason`: `endpoint_gone`, `failing_too_long`, `blocked_url`, `profile_removed`); creating it again reactivates it.
+- Deliveries: same body and signature as the account webhook plus the header `X-Upload-Post-Subscription: <subscription_id>`; history in `GET /webhooks/deliveries?subscription_id=`.
+
+## Team Roles and Post Approvals
+
+Team members act on the owner's account with the header `X-Act-As-User: <owner email>`. Invitations, role changes and removals are done by the owner in the dashboard (Team page), not through the API. Roles are not generally available yet: while `GET /teams/roles` says `enabled: false`, every member works as an admin with every profile.
+
+- `GET /api/uploadposts/teams/roles`: `enabled`, `approvals_enabled`, the roles (`owner`, `admin`, `editor`, `contributor`, `viewer`) and their permissions, plus `your_role` and `your_profiles`. `GET /teams/members` (each with `role` and `profiles`, `null` = all), `GET /teams/shared-with-me`, `GET /teams/audit` (owner and unrestricted admins; filters `actor`, `action`, `profile_username`, `target_id`, `since`, `until`, `limit` 1-200, `cursor`).
+- With roles on, an **editor**'s upload answers `202` with `pending_approval: true`, `approval_id`, `approval_status: "pending_approval"` and `job_id: null`; a **contributor**'s is saved as `"draft"`; a **viewer** only reads. Nothing is published or scheduled until a reviewer (owner or admin) approves. While approvals are off, editors and contributors cannot post (`403 team_approvals_disabled`).
+- **Approval queue (not generally available yet: `503 post_approvals_disabled`)**: `GET /api/uploadposts/approvals` (`status`, `profile_username`, `author`, `limit`, `before`; `count_only=true` returns only `counts`), `GET|PATCH|DELETE /approvals/<approval_id>` (edit bumps `version`; delete withdraws), `POST /approvals/<approval_id>/approve` with the reviewed `{"version": N}` (**required**: `400 version_required`, `409 approval_version_changed` with `current_version` if someone edited it) plus optional `comment`, `scheduled_date` + `timezone` or `publish_now: true`; `POST /approvals/<approval_id>/reject` with `{"comment": "..."}` (required: `400 comment_required`). Closed items answer `409 approval_closed`.
+- **End-client approval** (with approvals on): `POST /uploadposts/users/generate-jwt` with `client_approval: true` lets the client of that profile approve or reject its pending posts from the connect page (`GET /approvals/client`, `POST /approvals/client/<approval_id>/approve` with `version`, `/reject` with `comment`; Bearer = that profile JWT).
+- Members limited to some profiles only see and post to those (`403 team_profile_forbidden`); on Facebook and LinkedIn they can only use the Page pinned to their profile (`403 team_page_not_pinned` until the owner pins one, `403 team_page_forbidden` for another Page). A role without the permission gets `403 team_role_forbidden`.
+- Approval webhook events (opt-in): `post_approval_requested`, `post_approved`, `post_rejected`, `post_approval_expired`, body `{event, user_email, profile_username, approval: {...}, created_at}`.
+
+## Platform-Specific Parameters
+
+See [references/platforms.md](references/platforms.md) for detailed platform parameters.
+
+## Media Requirements
+
+See [references/requirements.md](references/requirements.md) for format specs per platform.
+
+## Error Codes
+
+| Code | Meaning |
+|------|---------|
+| 400 | Bad request / missing params |
+| 401 | Invalid API key |
+| 403 `TEAM_SEAT_SUSPENDED` | Team member acting with `X-Act-As-User` on an account whose plan no longer covers that seat. Access returns when the owner upgrades or frees a seat |
+| 403 `team_role_forbidden` / `team_profile_forbidden` / `team_page_not_pinned` / `team_page_forbidden` | Team member whose role, profiles or pinned Page do not allow that request (see Team Roles and Post Approvals) |
+| 404 | Resource not found |
+| 409 | Conflict, e.g. creating a profile whose username already exists ("Username already in use") |
+| 429 | Rate limit / quota exceeded |
+| 503 `webhook_subscriptions_disabled` / `post_approvals_disabled` | Feature not generally available yet |
+| 500 | Server error |
+
+## Notes
+
+- Videos auto-switch to async if >59s processing time
+- X long text creates threads unless `x_long_text_as_post=true`
+- Facebook requires Page ID (personal profiles not supported by Meta)
+- Instagram/Threads support mixed carousels (photos + videos)
+- Instagram posts cannot be deleted through Upload-Post (Meta only allows it with Facebook Login; Upload-Post connects Instagram with Instagram Login). TikTok has no delete API either
+- X edits: Premium only, inside X's edit window (`edit_controls.editable_until` is the real deadline); the post ID changes
+- Instagram `media_url` is missing for videos with licensed audio: fall back to `permalink` or `thumbnail_url`
+- Telegram bots can delete messages for 48 h; Telegram has no views or channel statistics in the Bot API

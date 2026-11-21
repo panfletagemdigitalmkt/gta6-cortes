@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+trabalho/
+saida/
+.env
+*.mp4
+*.ass

@@ -1,0 +1,33 @@
+# Configuração dos agentes de cortes de GTA 6
+# Edite este arquivo direto no GitHub (ícone de lápis) para mudar o comportamento.
+
+busca:
+  jogo: "Grand Theft Auto VI"       # nome exato da categoria na Twitch
+  idiomas: ["pt"]                    # idiomas dos clipes (pt, en, es...). Vazio = todos
+  janela_horas: 24                   # procura clipes criados nas últimas N horas
+  min_visualizacoes: 50              # ignora clipes com poucas views
+  duracao_min_seg: 8
+  duracao_max_seg: 60
+
+# Só corta streamers que AUTORIZARAM canais de cortes.
+# Coloque aqui o login da Twitch (como aparece em twitch.tv/LOGIN).
+# Deixe somente_autorizados: false por sua conta e risco (risco de strike).
+streamers_autorizados: []
+somente_autorizados: true
+streamers_bloqueados: []
+
+cortes_por_execucao: 3              # quantos vídeos postar a cada rodada
+
+edicao:
+  legenda_automatica: true           # transcreve a fala e queima legenda no vídeo
+  modelo_whisper: "small"            # tiny | base | small | medium (maior = melhor e mais lento)
+  idioma_legenda: "pt"
+  mostrar_titulo_no_video: true
+  mostrar_credito: true              # "twitch.tv/streamer" no rodapé
+
+postagem:
+  plataformas: ["tiktok", "youtube", "instagram"]
+  perfil_upload_post: "gta6cortes"   # nome do Profile criado no upload-post.com
+  hashtags: ["#gta6", "#gtavi", "#gta", "#cortes", "#shorts"]
+  fuso_horario: "America/Sao_Paulo"
+  usar_fila_upload_post: false       # true = joga na fila de melhores horários do upload-post

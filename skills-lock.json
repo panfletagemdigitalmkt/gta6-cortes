@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "skills": {
+    "upload-post": {
+      "source": "upload-post/upload-post-skill",
+      "commit": "ed44d7e414f09e87588e65ee06e6a508912e6841",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "f14bb034171e2a8d96c5ccc5f89956a9aa2386cf02cfaad234302a4f5707f235"
+    },
+    "video-highlight-extraction": {
+      "source": "eachlabs/skills",
+      "commit": "7f1f4ff847078e6eb4dc8de9ee8252302571b953",
+      "sourceType": "github",
+      "skillPath": "skills/video-highlight-extraction/SKILL.md",
+      "computedHash": "f30a1a56a0a573308718df3a968f11580ba72839275bdff97c0619ca6cd03494"
+    },
+    "yt-dlp": {
+      "source": "lwmxiaobei/yt-dlp-skill",
+      "commit": "7ea92082e15ea19dc3f82e7fa24e155ebe4f44d3",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "1771a6591d64e70766e61cc184844b710dd3823ee47dce6e2c73e1b428c1cf30"
+    }
+  }
+}
