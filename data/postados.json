@@ -99,6 +99,36 @@
       "quando": "2026-11-22T00:18:42+00:00",
       "simulado": true,
       "request_id": null
+    },
+    {
+      "clip_id": "DoubtfulRacyAnisePMSTwin-_hVBLJq-mpTldJyL",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/DoubtfulRacyAnisePMSTwin-_hVBLJq-mpTldJyL",
+      "titulo": "Rockstar sendo Rockstar kkkkkkkkk",
+      "views_twitch": 2283,
+      "quando": "2026-11-22T06:52:54+00:00",
+      "simulado": true,
+      "request_id": null
+    },
+    {
+      "clip_id": "GloriousObliviousLocustDxCat-hPqIG6ov1ZBisw1O",
+      "streamer": "Bisteconee",
+      "url": "https://www.twitch.tv/bisteconee/clip/GloriousObliviousLocustDxCat-hPqIG6ov1ZBisw1O",
+      "titulo": "1 de qi",
+      "views_twitch": 558,
+      "quando": "2026-11-22T06:53:46+00:00",
+      "simulado": true,
+      "request_id": null
+    },
+    {
+      "clip_id": "FlaccidKawaiiKimchiMau5-AQZCGbVzqTStERYu",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/FlaccidKawaiiKimchiMau5-AQZCGbVzqTStERYu",
+      "titulo": "CARRO VOADOR",
+      "views_twitch": 1368,
+      "quando": "2026-11-22T06:55:02+00:00",
+      "simulado": true,
+      "request_id": null
     }
   ]
 }
