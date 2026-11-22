@@ -28,6 +28,7 @@ def registrar(estado: dict, clipe: dict, titulo: str, resposta: dict | None, sim
         "quando": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "simulado": simulado,
         "request_id": (resposta or {}).get("request_id"),
+        "youtube_url": (resposta or {}).get("youtube_url"),
     })
     estado["postados"] = estado["postados"][-2000:]
     ARQ.parent.mkdir(parents=True, exist_ok=True)

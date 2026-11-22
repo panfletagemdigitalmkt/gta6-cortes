@@ -40,9 +40,23 @@ def processar(clipe: dict, cfg: dict, postar_de_verdade: bool, estado: dict) -> 
 
     resposta = None
     if postar_de_verdade:
-        from .postar import postar
-        resposta = postar(final, textos, cfg["postagem"], segredo("UPLOADPOST_API_KEY", obrigatorio=True))
-        print(f"  ✓ enviado ao upload-post: {resposta.get('request_id') or resposta}")
+        resposta = {}
+        yt = [segredo("YOUTUBE_CLIENT_ID"), segredo("YOUTUBE_CLIENT_SECRET"), segredo("YOUTUBE_REFRESH_TOKEN")]
+        chave_up = segredo("UPLOADPOST_API_KEY")
+        if not all(yt) and not chave_up:
+            raise SystemExit("POSTAR=true, mas não há como postar: configure os secrets YOUTUBE_* "
+                             "(grátis, veja o README) ou UPLOADPOST_API_KEY.")
+        if all(yt):
+            from .youtube import postar_youtube
+            resposta.update(postar_youtube(final, textos, cfg["postagem"], *yt))
+            print(f"  ✓ postado no YouTube: {resposta['youtube_url']}")
+        if chave_up:
+            from .postar import postar
+            plats = [p for p in cfg["postagem"]["plataformas"] if not (all(yt) and p == "youtube")]
+            if plats:
+                r = postar(final, textos, {**cfg["postagem"], "plataformas": plats}, chave_up)
+                resposta["request_id"] = r.get("request_id")
+                print(f"  ✓ enviado ao upload-post ({', '.join(plats)}): {r.get('request_id') or r}")
     else:
         print("  (modo simulado: não postou. Defina POSTAR=true para publicar)")
     est.registrar(estado, clipe, textos["titulo_video"], resposta, simulado=not postar_de_verdade)
