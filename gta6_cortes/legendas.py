@@ -41,7 +41,9 @@ def _t(seg: float) -> str:
 
 
 def _esc(txt: str) -> str:
-    return txt.replace("\\", "").replace("{", "(").replace("}", ")").replace("\n", " ")
+    # remove emojis (a fonte do vídeo não tem) e caracteres que quebram o .ass
+    txt = "".join(ch for ch in txt if ord(ch) < 0x2190 or 0x3000 <= ord(ch) < 0xD800)
+    return txt.replace("\\", "").replace("{", "(").replace("}", ")").replace("\n", " ").strip()
 
 
 def gerar_ass(palavras: list[dict], saida: Path, titulo: str | None, credito: str | None,

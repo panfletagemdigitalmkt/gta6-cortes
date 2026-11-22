@@ -14,7 +14,8 @@ def carregar() -> dict:
 
 
 def ids(estado: dict) -> set[str]:
-    return {p["clip_id"] for p in estado["postados"]}
+    # testes (simulado) não contam: o clipe ainda pode ser postado de verdade depois
+    return {p["clip_id"] for p in estado["postados"] if not p.get("simulado")}
 
 
 def registrar(estado: dict, clipe: dict, titulo: str, resposta: dict | None, simulado: bool) -> None:

@@ -9,9 +9,17 @@ def _limpo(txt: str) -> str:
     return re.sub(r"\s+", " ", txt or "").strip()
 
 
+def _titulo_ruim(t: str) -> bool:
+    letras = re.sub(r"[^a-zA-ZÀ-ÿ]", "", t)
+    sem_risada = re.sub(r"(?i)k|h|a|s|j|r", "", letras)  # kkkk, hahaha, asjkas...
+    return len(letras) < 4 or len(sem_risada) < 3
+
+
 def textos_padrao(clipe: dict, hashtags: list[str]) -> dict:
     streamer = clipe["broadcaster_name"]
-    titulo = _limpo(clipe.get("title")) or f"Momento insano de {streamer} no GTA 6"
+    titulo = _limpo(clipe.get("title"))
+    if _titulo_ruim(titulo):
+        titulo = f"{streamer} no GTA 6 😂" if "k" in titulo.lower() else f"Momento insano do {streamer} no GTA 6"
     link = f"https://www.twitch.tv/{clipe['broadcaster_name'].lower()}"
     tags = " ".join(hashtags)
     return {
