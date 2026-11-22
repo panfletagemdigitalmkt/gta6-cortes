@@ -19,6 +19,17 @@ Roda a cada 3 horas, posta até 3 cortes por rodada e nunca repete um clipe (`da
 2. Nome: `gta6-cortes` · OAuth Redirect URL: `http://localhost` · Categoria: *Application Integration* · Client Type: *Confidential*
 3. Copie o **Client ID** e gere um **Client Secret**
 
+### 2a. YouTube direto (grátis, sem upload-post)
+Posta no YouTube Shorts pela API oficial. Cota padrão: 100 uploads/dia (o robô usa até 24).
+1. https://console.cloud.google.com → criar projeto `gta6-cortes`.
+2. **APIs e serviços → Biblioteca** → ativar **YouTube Data API v3**.
+3. **Tela de consentimento OAuth**: tipo *Externo*, adicionar seu e-mail como usuário de teste e depois **Publicar app** (em *Produção*; em *Teste* o token expira em 7 dias).
+4. **Credenciais → Criar → ID do cliente OAuth** → tipo *Aplicativo da Web* → URI de redirecionamento: `https://developers.google.com/oauthplayground`.
+5. https://developers.google.com/oauthplayground → engrenagem → *Use your own OAuth credentials* (cole ID e segredo) → escopo `https://www.googleapis.com/auth/youtube.upload` → *Authorize* com a conta do canal → *Exchange authorization code for tokens* → copie o **Refresh token**.
+6. Secrets no GitHub: `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`. Depois crie a variável `POSTAR=true`.
+
+Com os secrets `YOUTUBE_*`, o YouTube é postado direto; o upload-post (se existir) fica só para TikTok e Instagram.
+
 ### 2. upload-post (postagem nas 3 redes)
 1. Crie conta em [upload-post.com](https://upload-post.com)
 2. Conecte TikTok, YouTube e Instagram

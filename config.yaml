@@ -29,7 +29,8 @@ edicao:
 
 postagem:
   plataformas: ["tiktok", "youtube", "instagram"]
-  perfil_upload_post: "gta6cortes"   # nome do Profile criado no upload-post.com
+  perfil_upload_post: "gta6cortes"   # nome do Profile criado no upload-post.com (só se usar upload-post)
+  youtube_privacidade: "public"      # public | unlisted | private (postagem direta pela API do YouTube)
   hashtags: ["#gta6", "#gtavi", "#gta", "#cortes", "#shorts"]
   fuso_horario: "America/Sao_Paulo"
   usar_fila_upload_post: false       # true = joga na fila de melhores horários do upload-post
