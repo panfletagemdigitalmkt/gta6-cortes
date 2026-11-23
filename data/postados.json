@@ -269,6 +269,39 @@
       "simulado": false,
       "request_id": null,
       "youtube_url": "https://youtube.com/shorts/3ITKwCsyQFk"
+    },
+    {
+      "clip_id": "CalmPowerfulJuiceDeIlluminati-5eKQ3ZSqKDKJdFPD",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/CalmPowerfulJuiceDeIlluminati-5eKQ3ZSqKDKJdFPD",
+      "titulo": "davy jones na tv?",
+      "views_twitch": 991,
+      "quando": "2026-11-23T21:28:24+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/RtwMyyUwXKQ"
+    },
+    {
+      "clip_id": "GenerousPhilanthropicGaurCharlieBitMe-4NX68ahxSFP24xDF",
+      "streamer": "Bisteconee",
+      "url": "https://www.twitch.tv/bisteconee/clip/GenerousPhilanthropicGaurCharlieBitMe-4NX68ahxSFP24xDF",
+      "titulo": "BISTECONE ENDOIDO",
+      "views_twitch": 63,
+      "quando": "2026-11-23T21:30:37+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/gr8xDIfEykE"
+    },
+    {
+      "clip_id": "SweetHotDogJKanStyle-fLUCqtvG6FqiDjc5",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/SweetHotDogJKanStyle-fLUCqtvG6FqiDjc5",
+      "titulo": "O BUG DO NADA",
+      "views_twitch": 662,
+      "quando": "2026-11-23T21:31:04+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/2K5DXzY-GY0"
     }
   ]
 }
