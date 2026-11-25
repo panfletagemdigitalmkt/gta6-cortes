@@ -368,6 +368,39 @@
       "simulado": false,
       "request_id": null,
       "youtube_url": "https://youtube.com/shorts/TXrWpRIWchs"
+    },
+    {
+      "clip_id": "PlacidIncredulousTomatoPicoMause-CBpEoYuR1pGCI3eN",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/PlacidIncredulousTomatoPicoMause-CBpEoYuR1pGCI3eN",
+      "titulo": "vai bebe vem",
+      "views_twitch": 1992,
+      "quando": "2026-11-25T08:37:47+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/OGt3Wr2Ny_8"
+    },
+    {
+      "clip_id": "OptimisticTiredOryxFUNgineer-Hdlfi350omDBm5P7",
+      "streamer": "Bisteconee",
+      "url": "https://www.twitch.tv/bisteconee/clip/OptimisticTiredOryxFUNgineer-Hdlfi350omDBm5P7",
+      "titulo": "A porradaria cantou",
+      "views_twitch": 38,
+      "quando": "2026-11-25T08:39:21+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/2zZ7DveCs3o"
+    },
+    {
+      "clip_id": "EnthusiasticFairHornetNotLikeThis-A3FVqs7wImulyrWt",
+      "streamer": "Gaules",
+      "url": "https://www.twitch.tv/gaules/clip/EnthusiasticFairHornetNotLikeThis-A3FVqs7wImulyrWt",
+      "titulo": "Capibara",
+      "views_twitch": 26,
+      "quando": "2026-11-25T08:42:06+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/qPtCaEfkxm8"
     }
   ]
 }
