@@ -632,6 +632,39 @@
       "simulado": false,
       "request_id": null,
       "youtube_url": "https://youtube.com/shorts/ET3x_WCWCKQ"
+    },
+    {
+      "clip_id": "SneakySpicyFriseeMrDestructoid-NMhdykqeGjb7U-w0",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/SneakySpicyFriseeMrDestructoid-NMhdykqeGjb7U-w0",
+      "titulo": "Se fica esperto",
+      "views_twitch": 698,
+      "quando": "2026-11-28T17:36:17+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/s1XdeSs4IKI"
+    },
+    {
+      "clip_id": "AffluentVenomousPeppermintDeIlluminati-B-sedlodvUQqcZuh",
+      "streamer": "Bisteconee",
+      "url": "https://www.twitch.tv/bisteconee/clip/AffluentVenomousPeppermintDeIlluminati-B-sedlodvUQqcZuh",
+      "titulo": "Bistecone destruindo a casa",
+      "views_twitch": 20,
+      "quando": "2026-11-28T17:37:40+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/MI3o2f47g8M"
+    },
+    {
+      "clip_id": "CourteousObeseDragonflyTooSpicy-9CoEh1hp2f6JjMAi",
+      "streamer": "alanzoka",
+      "url": "https://www.twitch.tv/alanzoka/clip/CourteousObeseDragonflyTooSpicy-9CoEh1hp2f6JjMAi",
+      "titulo": "ET, ME LEVAA!!!!!",
+      "views_twitch": 461,
+      "quando": "2026-11-28T17:40:23+00:00",
+      "simulado": false,
+      "request_id": null,
+      "youtube_url": "https://youtube.com/shorts/WUhomcbcGSo"
     }
   ]
 }
